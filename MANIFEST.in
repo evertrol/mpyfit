@@ -1,0 +1,4 @@
+include README LICENSE MANIFEST.in
+recursive-include mpyfit *.py *.c *.h
+include test/*py
+include mpyfit/cmpfit/DISCLAIMER mpyfit/cmpfit/README

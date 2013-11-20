@@ -1,0 +1,131 @@
+mpyfit
+======
+
+mpyfit is a Python wrapper around [cmpfit][1], which itself is more or a
+less a direct translation of the MINPACK routine mpfit: a
+least-squares solver (fitter) using the Levenberg-Marquardt algorithm.
+cmpfit contains some conveniences, like constraining selected fit
+parameters. This can be achieved for any least-squares solver by
+rewriting the function, but here it is included in the solver.
+
+Other Python interfaces to mpfit exist, such as a pure [Python
+implementation][2], or through [the Kapteyn package][3]. In addition,
+there is [lmfit-py][4], which wraps around scipy.optimize functions
+(and even allows a choice of minimizers).
+
+The purpose of this package is to be small, and a simple standalone
+tool: the only dependency is numpy, which is likely to be available
+already. (Using numpy as dependency is an obvious choice, since the
+input is likely a numpy array.)
+
+
+Dependencies
+============
+
+Building mpyfit requires the development versions Python and NumPy; if
+you use a package manager that makes that distinction, search for
+'<package-name>-dev' packages.
+
+mpyfit is Python 2 (tested with 2.7) and Python 3 (tested with 3.3)
+compatible. It has been tested with NumPy versions 1.6, 1.7 and 1.8.
+
+The C code follows the C99 standard.
+
+Installation
+============
+
+Installation is as simple as 
+
+    $ python setup.py install
+
+This should install a `mpyfit` package in your site-packages directory
+(plus, probably, an egg-info file); the package contains an
+`__init__.py` and a `mpfit.so` file.
+
+The usual installation options such as --prefix or --user apply.
+
+
+To run the tests, do
+
+    $ cd test
+    $ python -m unittest discover
+
+after installation. Note that you need mpyfit installed, not just
+build, before running the tests (unless you did an in-place build of
+the extension module: `$ python setup build_ext --inplace`).
+
+
+Usage
+=====
+
+mpyfit can use all the parameters that (c)mpfit takes. The main
+differences in the formulation are:
+
+- parameter constraints and parameter setup are now given through
+  the`parinfo` keyword, which consists of a list of dictionaries. The
+  dictionaries can be empty, or they can have values where the
+  dictionary keys indicate a particular constraint or setup for the
+  parameter. The index in the `parinfo` list corresponds to that of
+  the parameter list.
+
+- all fit arguments are given as keyword. The only two non-keyword
+  arguments are the function to be fitted and the parameters, since
+  these are mandatory.
+
+
+To run mpyfit, import the module and then run the `fit` function. See
+`help(mpyfit.fit)` for more information on the arguments::
+
+    >>> import mpyfit
+    >>> mpyfit.fit
+    <function fit at 0x2ba19b0>
+    >>> help(mpyfit.fit)
+
+
+An example from the doc string::
+
+    >>> from __future__ import print_function
+    >>> import mpyfit
+    >>> mpyfit.fit  #doctest: +ELLIPSIS
+    <function fit at 0x...>
+    >>> import numpy    
+    >>> 
+    >>> # Define the actual function
+    >>> def func(x, p):
+    ...     return p[0] + p[1] * numpy.sin(p[2]*x - p[3])
+    ... 
+    >>> # A simple minimization function:
+    >>> def least(p, args):
+    ...     x, y = args
+    ...     return func(x, p) - y
+    ... 
+    >>> p = [1, 1.5, 0.2, 0.5]
+    >>> x = numpy.linspace(-10, 10, 20)
+    >>> y = func(x, p)
+    >>> # Add some noise
+    >>> y += numpy.random.normal(0, 0.01, y.shape)
+
+    >>> pstart = [1, 1, 0.1, 1]
+    >>> pfit, results = mpyfit.fit(least, pstart, (x, y))
+
+    >>> print([round(p, 1) for p in pfit])  # doctest: +NORMALIZE_WHITESPACE
+    [1.0, 1.5, 0.2, 0.5]
+
+
+cmpfit
+======
+
+The source code of cmpfit has been altered in an attempt to make it
+more readable (more whitespace); in addition, multiple goto statements
+have been removed, which allows for better compiler optimizations (so
+far, the resulting speed up is minimal, but measurable). The original
+source code is included as well for comparison. The mpfit.h header
+file has not been changed.
+
+The original cmpfit README and DISCLAIMER files have been included as
+well. All files can be found in the mpyfit/cmpfit subdirectory.
+
+[1]: http://www.physics.wisc.edu/~craigm/idl/cmpfit.html
+[2]: http://cars.uchicago.edu/software/python/mpfit.html
+[3]: http://www.astro.rug.nl/software/kapteyn/
+[4]: http://newville.github.io/lmfit-py/

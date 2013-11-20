@@ -1,0 +1,11 @@
+# compiled Python files and directories
+*.pyc
+*.so
+__pycache__/
+# distutils build and dist directories
+build/
+dist/
+# distutils MANIFEST file (generated from MANIFEST.in)
+MANIFEST
+# emacs backup files
+*~
