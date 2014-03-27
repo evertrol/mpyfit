@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from distutils.core import setup
-from distutils.extension import Extension
+from distutils.core import Extension
 #from Cython.Distutils import build_ext
 import numpy
 from numpy.distutils.system_info import get_info
@@ -34,7 +34,8 @@ setup(
             'mpyfit.mpfit',
             sources=mpfit_sources,
             include_dirs=['mpyfit/cmpfit', numpy.get_include()],
-            extra_compile_args=['-std=c99 '
+            extra_compile_args=['-std=c99',
+                                '-Wno-declaration-after-statement',
                                 '-DNPY_NO_DEPRECATED_API={0}'.format(
                     npy_api_version)]
         ),
